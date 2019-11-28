@@ -62,6 +62,43 @@ export default {
         return
       }
 
+      this.initVertexBuffers()
+
+      // 平移
+      // this.translate(0.3, 0.2)
+      // 矩阵旋转
+      // this.rotate(130)
+      // 矩阵缩放
+      // this.scale(0.5, 1.5)
+      this.matrix4()
+
+      // 清空绘图区之前的颜色
+      gl.clearColor(0.0, 0.0, 0.0, 1.0)
+
+      // Clear <canvas>
+      gl.clear(gl.COLOR_BUFFER_BIT)
+
+      // 画一条线
+      // gl.drawArrays(gl.LINES, 0, 2)
+
+      // 画一条系列相连的线
+      // gl.drawArrays(gl.LINE_STRIP, 0, 4)
+
+      // 画一条系列相连且首尾相连的线
+      // gl.drawArrays(gl.LINE_LOOP, 0, 4)
+
+      // 画一个三角形
+      // gl.drawArrays(gl.TRIANGLES, 0, 3)
+
+      // 画一个矩形
+      // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+      // 一系列三角形组成类似扇形的图形
+      gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
+    },
+    initVertexBuffers () {
+      const gl = this.gl
+
       // var vertices_triangles = new Float32Array([
       //     0, 0.5,   -0.5, -0.5,   0.5, -0.5
       // ]);
@@ -89,42 +126,12 @@ export default {
       // gl.uniform4f(uFragColor, 0.0, 1.0, 0.0, 1.0);//绿色
       // 将数据传输给uFragColor参数指定的uniform变量
       gl.uniform4f(uFragColor, 1.0, 0.0, 0.0, 1.0)// 红色
-      // 平移
-      // this.translate(0.3, 0.2)
-      // 矩阵旋转
-      // this.rotate(130)
-      // 矩阵缩放
-      // this.scale(0.5, 1.5)
-      this.matrix4()
+
       // Assign the buffer object to aPosition variable
       gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0)
 
       // Enable the assignment to aPosition variable
       gl.enableVertexAttribArray(aPosition)
-
-      // 清空绘图区之前的颜色
-      gl.clearColor(0.0, 0.0, 0.0, 1.0)
-
-      // Clear <canvas>
-      gl.clear(gl.COLOR_BUFFER_BIT)
-
-      // 画一条线
-      // gl.drawArrays(gl.LINES, 0, 2)
-
-      // 画一条系列相连的线
-      // gl.drawArrays(gl.LINE_STRIP, 0, 4)
-
-      // 画一条系列相连且首尾相连的线
-      // gl.drawArrays(gl.LINE_LOOP, 0, 4)
-
-      // 画一个三角形
-      // gl.drawArrays(gl.TRIANGLES, 0, 3)
-
-      // 画一个矩形
-      // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-
-      // 一系列三角形组成类似扇形的图形
-      gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
     },
     translate (Tx = 0.0, Ty = 0.0, Tz = 0.0) {
       const gl = this.gl
