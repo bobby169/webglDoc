@@ -6,9 +6,11 @@ import Base from '../components/Base'
 const VSHADER_SOURCE =
   `attribute vec4 aPosition; // attribute variable
    uniform vec4 uTranslation;
+   uniform mat4 uXformMatrix;
     void main() {
       // gl_Position = aPosition;
-      gl_Position = aPosition + uTranslation;
+      // gl_Position = aPosition + uTranslation;
+      gl_Position = uXformMatrix * aPosition;
       gl_PointSize = 10.0;
     }`
 
@@ -77,7 +79,9 @@ export default {
       // gl.uniform4f(uFragColor, 0.0, 1.0, 0.0, 1.0);//绿色
       gl.uniform4f(uFragColor, 1.0, 0.0, 0.0, 1.0)// 红色
       // 平移
-      this.translate(gl)
+      // this.translate(0.3, 0.2)
+      // 矩阵旋转
+      this.rotate(130)
 
       // Assign the buffer object to aPosition variable
       gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0)
@@ -109,11 +113,28 @@ export default {
       // 一系列三角形组成类似扇形的图形
       gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
     },
-    translate (gl) {
+    translate (x, y) {
+      const gl = this.gl
       // Pass the translation distance to the vertex shader
       const uTranslation = gl.getUniformLocation(gl.program, 'uTranslation')
-      let Tx = 0.5; let Ty = 0.1; let Tz = 0.0
+      let Tx = x; let Ty = y; let Tz = 0.0
       gl.uniform4f(uTranslation, Tx, Ty, Tz, 0.0)
+    },
+    rotate (deg) {
+      const gl = this.gl
+      const radian = Math.PI * deg / 180.0 // Convert to radians
+      const cosB = Math.cos(radian)
+      const sinB = Math.sin(radian)
+      // 旋转矩阵
+      const xformMatrix = new Float32Array([
+        cosB, sinB, 0.0, 0.0,
+        -sinB, cosB, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+      ])
+      // Pass the translation distance to the vertex shader
+      let uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
+      gl.uniformMatrix4fv(uXformMatrix, false, xformMatrix)
     }
   },
   mounted () {
