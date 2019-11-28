@@ -21,19 +21,19 @@ export default {
       const gl = this.gl
 
       // 创建顶点着色器对象
-      let vertShader = gl.createShader(gl.VERTEX_SHADER)
+      const vertShader = gl.createShader(gl.VERTEX_SHADER)
       // 向着色器对象中填充着色器程序的源代码
       gl.shaderSource(vertShader, VSHADER_SOURCE)
       // 编译着色器
       gl.compileShader(vertShader)
 
       // 创建片元着色器对象
-      let fragShader = gl.createShader(gl.FRAGMENT_SHADER)
+      const fragShader = gl.createShader(gl.FRAGMENT_SHADER)
       gl.shaderSource(fragShader, FSHADER_SOURCE)
       gl.compileShader(fragShader)
 
       // 创建程序对象
-      let shaderProgram = gl.createProgram()
+      const shaderProgram = gl.createProgram()
       gl.program = shaderProgram
       // 为程序对象分配着色器
       gl.attachShader(shaderProgram, vertShader)
