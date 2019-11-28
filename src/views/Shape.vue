@@ -81,7 +81,9 @@ export default {
       // 平移
       // this.translate(0.3, 0.2)
       // 矩阵旋转
-      this.rotate(130)
+      // this.rotate(130)
+      // 矩阵缩放
+      this.scale(0.5, 1.5)
 
       // Assign the buffer object to aPosition variable
       gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0)
@@ -113,14 +115,13 @@ export default {
       // 一系列三角形组成类似扇形的图形
       gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
     },
-    translate (x, y) {
+    translate (Tx = 0.0, Ty = 0.0, Tz = 0.0) {
       const gl = this.gl
       // Pass the translation distance to the vertex shader
       const uTranslation = gl.getUniformLocation(gl.program, 'uTranslation')
-      let Tx = x; let Ty = y; let Tz = 0.0
       gl.uniform4f(uTranslation, Tx, Ty, Tz, 0.0)
     },
-    rotate (deg) {
+    rotate (deg = 0) {
       const gl = this.gl
       const radian = Math.PI * deg / 180.0 // Convert to radians
       const cosB = Math.cos(radian)
@@ -130,6 +131,19 @@ export default {
         cosB, sinB, 0.0, 0.0,
         -sinB, cosB, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+      ])
+      // Pass the translation distance to the vertex shader
+      let uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
+      gl.uniformMatrix4fv(uXformMatrix, false, xformMatrix)
+    },
+    scale (Sx = 1.0, Sy = 1.0, Sz = 1.0) {
+      const gl = this.gl
+      // 旋转矩阵
+      const xformMatrix = new Float32Array([
+        Sx, 0.0, 0.0, 0.0,
+        0.0, Sy, 0.0, 0.0,
+        0.0, 0.0, Sz, 0.0,
         0.0, 0.0, 0.0, 1.0
       ])
       // Pass the translation distance to the vertex shader
