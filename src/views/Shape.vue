@@ -1,6 +1,7 @@
 <script>
 import Base from '../components/Base'
 import { Matrix4, Vector3 } from 'three'
+import { initShaders } from '../js/utils'
 // 直接用GLSL着色器语言进行修改
 // Vertex shader program
 const VSHADER_SOURCE =
@@ -31,29 +32,35 @@ export default {
     init () {
       const gl = this.gl
 
-      // 创建顶点着色器对象
-      const vertShader = gl.createShader(gl.VERTEX_SHADER)
-      // 向着色器对象中填充着色器程序的源代码
-      gl.shaderSource(vertShader, VSHADER_SOURCE)
-      // 编译着色器
-      gl.compileShader(vertShader)
+      // // 创建顶点着色器对象
+      // const vertShader = gl.createShader(gl.VERTEX_SHADER)
+      // // 向着色器对象中填充着色器程序的源代码
+      // gl.shaderSource(vertShader, VSHADER_SOURCE)
+      // // 编译着色器
+      // gl.compileShader(vertShader)
+      //
+      // // 创建片元着色器对象
+      // const fragShader = gl.createShader(gl.FRAGMENT_SHADER)
+      // gl.shaderSource(fragShader, FSHADER_SOURCE)
+      // gl.compileShader(fragShader)
+      //
+      // // 创建程序对象
+      // const shaderProgram = gl.createProgram()
+      // gl.program = shaderProgram
+      // // 为程序对象分配着色器
+      // gl.attachShader(shaderProgram, vertShader)
+      // gl.attachShader(shaderProgram, fragShader)
+      //
+      // // 连接程序对象
+      // gl.linkProgram(shaderProgram)
+      // // 使用程序对象
+      // gl.useProgram(shaderProgram)
 
-      // 创建片元着色器对象
-      const fragShader = gl.createShader(gl.FRAGMENT_SHADER)
-      gl.shaderSource(fragShader, FSHADER_SOURCE)
-      gl.compileShader(fragShader)
-
-      // 创建程序对象
-      const shaderProgram = gl.createProgram()
-      gl.program = shaderProgram
-      // 为程序对象分配着色器
-      gl.attachShader(shaderProgram, vertShader)
-      gl.attachShader(shaderProgram, fragShader)
-
-      // 连接程序对象
-      gl.linkProgram(shaderProgram)
-      // 使用程序对象
-      gl.useProgram(shaderProgram)
+      // Initialize shaders
+      if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
+        console.log('Failed to intialize shaders.')
+        return
+      }
 
       // var vertices_triangles = new Float32Array([
       //     0, 0.5,   -0.5, -0.5,   0.5, -0.5
@@ -77,8 +84,10 @@ export default {
       // 将数据(v0,v1,v2,v3)传递由location参数指定的attribute变量
       gl.vertexAttrib3f(aPosition, 0.0, 0.0, 0.0)
 
+      // 获取指定名称uFragColor的uniform变量的存储位置
       const uFragColor = gl.getUniformLocation(gl.program, 'uFragColor')
       // gl.uniform4f(uFragColor, 0.0, 1.0, 0.0, 1.0);//绿色
+      // 将数据传输给uFragColor参数指定的uniform变量
       gl.uniform4f(uFragColor, 1.0, 0.0, 0.0, 1.0)// 红色
       // 平移
       // this.translate(0.3, 0.2)
@@ -119,8 +128,9 @@ export default {
     },
     translate (Tx = 0.0, Ty = 0.0, Tz = 0.0) {
       const gl = this.gl
-      // Pass the translation distance to the vertex shader
+      // 获取指定名称uTranslation的uniform变量的存储位置
       const uTranslation = gl.getUniformLocation(gl.program, 'uTranslation')
+      // 将数据传输给uTranslation参数指定的uniform变量
       gl.uniform4f(uTranslation, Tx, Ty, Tz, 0.0)
     },
     rotate (deg = 0) {
@@ -135,8 +145,9 @@ export default {
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
       ])
-      // Pass the translation distance to the vertex shader
+      // 获取指定名称uXformMatrix的uniform变量的存储位置
       const uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
+      // 将旋转矩阵传输给顶点着色器
       gl.uniformMatrix4fv(uXformMatrix, false, xformMatrix)
     },
     scale (Sx = 1.0, Sy = 1.0, Sz = 1.0) {
@@ -148,7 +159,7 @@ export default {
         0.0, 0.0, Sz, 0.0,
         0.0, 0.0, 0.0, 1.0
       ])
-      // Pass the translation distance to the vertex shader
+      // 获取指定名称uXformMatrix的uniform变量的存储位置
       const uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
       gl.uniformMatrix4fv(uXformMatrix, false, xformMatrix)
     },
@@ -181,6 +192,7 @@ export default {
       // makeRotationFromEuler(euler) :通过一个欧拉类型的值来设置矩阵的值。
       // makeRotationFromQuaternion(q):通过一个四元数类型的值来设置矩阵。
       // makeRotationonAxis(axis,theta):按一个轴旋转θ°，然后设置矩阵的值。
+      // 获取指定名称uModelMatrix的uniform变量的存储位置
       const uXformMatrix = gl.getUniformLocation(gl.program, 'uModelMatrix') // 进行复合变换
       gl.uniformMatrix4fv(uXformMatrix, false, matrix4.elements)
     }
