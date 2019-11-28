@@ -5,8 +5,10 @@ import Base from '../components/Base'
 // Vertex shader program
 const VSHADER_SOURCE =
   `attribute vec4 aPosition; // attribute variable
+   uniform vec4 uTranslation;
     void main() {
-      gl_Position = aPosition;
+      // gl_Position = aPosition;
+      gl_Position = aPosition + uTranslation;
       gl_PointSize = 10.0;
     }`
 
@@ -58,7 +60,7 @@ export default {
       ])
 
       // Create a buffer object
-      var vertexBuffer = gl.createBuffer()
+      const vertexBuffer = gl.createBuffer()
 
       // Bind the buffer object to target
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
@@ -74,6 +76,8 @@ export default {
       const uFragColor = gl.getUniformLocation(gl.program, 'uFragColor')
       // gl.uniform4f(uFragColor, 0.0, 1.0, 0.0, 1.0);//绿色
       gl.uniform4f(uFragColor, 1.0, 0.0, 0.0, 1.0)// 红色
+      // 平移
+      this.translate(gl)
 
       // Assign the buffer object to aPosition variable
       gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0)
@@ -104,6 +108,12 @@ export default {
 
       // 一系列三角形组成类似扇形的图形
       gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
+    },
+    translate (gl) {
+      // Pass the translation distance to the vertex shader
+      const uTranslation = gl.getUniformLocation(gl.program, 'uTranslation')
+      let Tx = 0.5; let Ty = 0.1; let Tz = 0.0
+      gl.uniform4f(uTranslation, Tx, Ty, Tz, 0.0)
     }
   },
   mounted () {
