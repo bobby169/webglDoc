@@ -1,16 +1,18 @@
 <script>
 import Base from '../components/Base'
-
+import { Matrix4, Vector3 } from 'three'
 // 直接用GLSL着色器语言进行修改
 // Vertex shader program
 const VSHADER_SOURCE =
   `attribute vec4 aPosition; // attribute variable
    uniform vec4 uTranslation;
    uniform mat4 uXformMatrix;
+   uniform mat4 uModelMatrix;
     void main() {
       // gl_Position = aPosition;
       // gl_Position = aPosition + uTranslation;
-      gl_Position = uXformMatrix * aPosition;
+      // gl_Position = uXformMatrix * aPosition;
+      gl_Position = uModelMatrix * aPosition;
       gl_PointSize = 10.0;
     }`
 
@@ -21,7 +23,7 @@ const FSHADER_SOURCE =
      void main() {
          gl_FragColor = uFragColor;
      }`
-
+console.info(Vector3)
 export default {
   name: 'Point',
   mixins: [Base],
@@ -83,8 +85,8 @@ export default {
       // 矩阵旋转
       // this.rotate(130)
       // 矩阵缩放
-      this.scale(0.5, 1.5)
-
+      // this.scale(0.5, 1.5)
+      this.matrix4()
       // Assign the buffer object to aPosition variable
       gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0)
 
@@ -134,7 +136,7 @@ export default {
         0.0, 0.0, 0.0, 1.0
       ])
       // Pass the translation distance to the vertex shader
-      let uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
+      const uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
       gl.uniformMatrix4fv(uXformMatrix, false, xformMatrix)
     },
     scale (Sx = 1.0, Sy = 1.0, Sz = 1.0) {
@@ -147,8 +149,40 @@ export default {
         0.0, 0.0, 0.0, 1.0
       ])
       // Pass the translation distance to the vertex shader
-      let uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
+      const uXformMatrix = gl.getUniformLocation(gl.program, 'uXformMatrix')
       gl.uniformMatrix4fv(uXformMatrix, false, xformMatrix)
+    },
+    matrix4 (v) {
+      const gl = this.gl
+      // 引入threejs的Matrix4
+      const matrix4 = new Matrix4()
+      // const m1 = new Matrix4()
+      // const m2 = new Matrix4()
+      // const m3 = new Matrix4()
+      // const alpha = 0.5
+      // const beta = Math.PI
+      // const gamma = Math.PI / 2
+      // m1.makeRotationX(alpha)
+      // m2.makeRotationY(beta)
+      // m3.makeRotationZ(gamma)
+      // const m5 = new Matrix4()
+      // m5.makeTranslation(0.5, 0.5, 0.0)
+      // const m6 = new Matrix4()
+      // m6.makeScale(0.5, 1, 0.5)
+      // matrix4.multiplyMatrices(m3, m5)
+      // matrix4.multiply(m3)
+
+      // 下面方法可以串行同时修改
+      matrix4.setPosition(0.3, 0.5, 0.5)
+      // 注：Threejs中的translate方法写在Object3D中，没有直接用matrix4，rotate方法用到了四元素new Quaternion
+      matrix4.scale(new Vector3(0.5, 1.5, 1))
+
+      // 旋转的方法就太多了
+      // makeRotationFromEuler(euler) :通过一个欧拉类型的值来设置矩阵的值。
+      // makeRotationFromQuaternion(q):通过一个四元数类型的值来设置矩阵。
+      // makeRotationonAxis(axis,theta):按一个轴旋转θ°，然后设置矩阵的值。
+      const uXformMatrix = gl.getUniformLocation(gl.program, 'uModelMatrix') // 进行复合变换
+      gl.uniformMatrix4fv(uXformMatrix, false, matrix4.elements)
     }
   },
   mounted () {
