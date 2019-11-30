@@ -2,6 +2,7 @@
   <div class="home">
     <router-link to="/point" class="link"><cell title="Point" is-link></cell></router-link>
     <router-link to="/shape" class="link"><cell title="Shape" is-link></cell></router-link>
+    <router-link to="/multiAttributeSize" class="link"><cell title="MultiAttributeSize" is-link></cell></router-link>
   </div>
 </template>
 

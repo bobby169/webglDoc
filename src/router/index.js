@@ -19,6 +19,11 @@ const routes = [
     path: '/shape',
     name: 'Shape',
     component: () => import(/* webpackChunkName: "shape" */ '../views/Shape.vue')
+  },
+  {
+    path: '/multiAttributeSize',
+    name: 'MultiAttributeSize',
+    component: () => import(/* webpackChunkName: "multiAttributeSize" */ '../views/MultiAttributeSize.vue')
   }
 ]
 
