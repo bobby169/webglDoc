@@ -95,7 +95,7 @@ export default {
       // gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
       gl.bufferData(gl.ARRAY_BUFFER, verticesSizes, gl.STATIC_DRAW)
 
-      const FSIZE = verticesSizes.BYTES_PER_ELEMENT
+      const FSIZE = verticesSizes.BYTES_PER_ELEMENT // 得到每个元素所占字节数
       // 获取由name参数指定的attribute变量的存储地址
       const aPosition = gl.getAttribLocation(gl.program, 'aPosition')
       // 将数据(v0,v1,v2,v3)传递由location参数指定的attribute变量
