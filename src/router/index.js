@@ -24,6 +24,11 @@ const routes = [
     path: '/multiAttributeSize',
     name: 'MultiAttributeSize',
     component: () => import(/* webpackChunkName: "multiAttributeSize" */ '../views/MultiAttributeSize.vue')
+  },
+  {
+    path: '/multiAttributeColor',
+    name: 'MultiAttributeColor',
+    component: () => import(/* webpackChunkName: "multiAttributeColor" */ '../views/MultiAttributeColor.vue')
   }
 ]
 
