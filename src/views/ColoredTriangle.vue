@@ -9,7 +9,7 @@ const VSHADER_SOURCE =
      varying vec4 vColor; // varying(可变的) variable
      void main() {
        gl_Position = aPosition;
-       gl_PointSize = 10.0;
+       // gl_PointSize = 10.0;
        vColor = aColor; // Pass the data to the fragment shader 从顶点着色器向片元着色器传递颜色数据
      }`
 
@@ -51,14 +51,14 @@ export default {
       // gl.drawArrays(gl.LINE_LOOP, 0, 4)
 
       // 画一个三角形
-      // gl.drawArrays(gl.TRIANGLES, 0, 3)
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
 
       // 画一个矩形
       // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
       // 一系列三角形组成类似扇形的图形
       // gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
-      gl.drawArrays(gl.POINTS, 0, 3)
+      // gl.drawArrays(gl.POINTS, 0, 3)
     },
     initVertexBuffers () {
       const gl = this.gl
