@@ -29,6 +29,16 @@ const routes = [
     path: '/multiAttributeColor',
     name: 'MultiAttributeColor',
     component: () => import(/* webpackChunkName: "multiAttributeColor" */ '../views/MultiAttributeColor.vue')
+  },
+  {
+    path: '/coloredTriangle',
+    name: 'ColoredTriangle',
+    component: () => import(/* webpackChunkName: "coloredTriangle" */ '../views/ColoredTriangle.vue')
+  },
+  {
+    path: '/triangleFragCoord',
+    name: 'TriangleFragCoord',
+    component: () => import(/* webpackChunkName: "triangleFragCoord" */ '../views/TriangleFragCoord.vue')
   }
 ]
 
