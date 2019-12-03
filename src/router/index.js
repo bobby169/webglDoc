@@ -39,6 +39,11 @@ const routes = [
     path: '/triangleFragCoord',
     name: 'TriangleFragCoord',
     component: () => import(/* webpackChunkName: "triangleFragCoord" */ '../views/TriangleFragCoord.vue')
+  },
+  {
+    path: '/texturedQuad',
+    name: 'TexturedQuad',
+    component: () => import(/* webpackChunkName: "texturedQuad" */ '../views/TexturedQuad.vue')
   }
 ]
 
