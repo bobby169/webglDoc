@@ -44,6 +44,11 @@ const routes = [
     path: '/texturedQuad',
     name: 'TexturedQuad',
     component: () => import(/* webpackChunkName: "texturedQuad" */ '../views/TexturedQuad.vue')
+  },
+  {
+    path: '/multiTexture',
+    name: 'MultiTexture',
+    component: () => import(/* webpackChunkName: "multiTexture" */ '../views/MultiTexture.vue')
   }
 ]
 
