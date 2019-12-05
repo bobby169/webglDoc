@@ -8,6 +8,7 @@
     <router-link to="/triangleFragCoord" class="link"><cell title="TriangleFragCoord" is-link></cell></router-link>
     <router-link to="/texturedQuad" class="link"><cell title="TexturedQuad" is-link></cell></router-link>
     <router-link to="/multiTexture" class="link"><cell title="MultiTexture" is-link></cell></router-link>
+    <router-link to="/lightedCube" class="link"><cell title="LightedCube" is-link></cell></router-link>
   </div>
 </template>
 

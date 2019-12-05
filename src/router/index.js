@@ -49,6 +49,11 @@ const routes = [
     path: '/multiTexture',
     name: 'MultiTexture',
     component: () => import(/* webpackChunkName: "multiTexture" */ '../views/MultiTexture.vue')
+  },
+  {
+    path: '/lightedCube',
+    name: 'LightedCube',
+    component: () => import(/* webpackChunkName: "lightedCube" */ '../views/LightedCube.vue')
   }
 ]
 

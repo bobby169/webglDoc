@@ -21,7 +21,7 @@ const FSHADER_SOURCE =
        gl_FragColor = vColor;
      }`
 export default {
-  name: 'Point',
+  name: 'LightedCube',
   mixins: [Base],
   methods: {
     init () {
