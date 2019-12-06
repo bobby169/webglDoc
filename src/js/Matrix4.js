@@ -69,6 +69,10 @@ export default class Matrix4 {
     return this
   }
 
+  multiply (other) {
+    return this.concat(other)
+  }
+
   multiplyVector3 (pos) {
     let e = this.elements
     let p = pos.elements
