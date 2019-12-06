@@ -7,18 +7,20 @@ import Matrix4 from '../js/Matrix4'
 // Vertex shader program
 const VSHADER_SOURCE =
     `attribute vec4 aPosition;
-     attribute vec4 aColor;
-     attribute vec4 aNormal;
+     attribute vec4 aColor; // 基底色
+     attribute vec4 aNormal; // 法向量方向
      uniform mat4 uMvpMatrix;
-     uniform vec3 uLightColor;
-     uniform vec3 uLightDirection;
+     uniform vec3 uLightColor; // 入射光线颜色
+     uniform vec3 uLightDirection; // 入射光方向，归一化的世界坐标下
+     uniform vec3 uAmbientLight; // 环境光颜色
      varying vec4 vColor; // varying(可变的) variable
      void main() {
        gl_Position = uMvpMatrix * aPosition;
-       vec3 normal = normalize(aNormal.xyz);
-       float nDotL = max(dot(uLightDirection, normal), 0.0);
-       vec3 diffuse = uLightColor * aColor.rgb * nDotL;
-       vColor = vec4(diffuse, aColor.a);
+       vec3 normal = normalize(aNormal.xyz); // 对法向量归一化处理
+       float nDotL = max(dot(uLightDirection, normal), 0.0); // 计算光线方向和法向量的点积
+       vec3 diffuse = uLightColor * aColor.rgb * nDotL; // 计算漫反射光颜色
+       vec3 ambient = uAmbientLight * aColor.rgb;
+       vColor = vec4(diffuse + ambient, aColor.a); // 补上第4个分量aColor.a = 1
      }`
 
 // Fragment shader program
@@ -51,23 +53,29 @@ export default {
       const uMvpMatrix = gl.getUniformLocation(gl.program, 'uMvpMatrix')
       const uLightColor = gl.getUniformLocation(gl.program, 'uLightColor')
       const uLightDirection = gl.getUniformLocation(gl.program, 'uLightDirection')
-      if (!uMvpMatrix || !uLightColor || !uLightDirection) {
+      const uAmbientLight = gl.getUniformLocation(gl.program, 'uAmbientLight')
+      if (!uMvpMatrix || !uLightColor || !uLightDirection || !uAmbientLight) {
         console.log('Failed to get the storage location')
         return
       }
-
+      // 设置光线颜色（白色）
       gl.uniform3f(uLightColor, 1.0, 1.0, 1.0)
       const lightDirection = new Vector3([0.5, 3.0, 4.0])
-      lightDirection.normalize()
+      lightDirection.normalize() // 归一化
       gl.uniform3fv(uLightDirection, lightDirection.elements)
+
+      // 环境光颜色
+      gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2)
+
       const mvpMatrix = new Matrix4()
       mvpMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100)
       mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0)
+      // 将模型视图投影矩阵传给uMvpMatrix变量
       gl.uniformMatrix4fv(uMvpMatrix, false, mvpMatrix.elements)
 
       // Clear <canvas>
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-      gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
+      gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0) // 绘制立方体
 
       // 画一条线
       // gl.drawArrays(gl.LINES, 0, 2)
@@ -134,7 +142,7 @@ export default {
         1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0 // v4-v7-v6-v5 back
       ])
 
-      const normals = new Float32Array([ // Normal
+      const normals = new Float32Array([ // Normal 法向量
         0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, // v0-v1-v2-v3 front
         1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, // v0-v3-v4-v5 right
         0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // v0-v5-v6-v1 up
