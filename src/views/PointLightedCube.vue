@@ -36,6 +36,9 @@ const FSHADER_SOURCE =
      void main() {
        gl_FragColor = vColor;
      }`
+
+const ANGLE_STEP = 30.0
+let gLast = Date.now()
 export default {
   name: 'Point',
   mixins: [Base],
@@ -81,26 +84,34 @@ export default {
       const mvpMatrix = new Matrix4() // 模型视图投影矩阵
       const normalMatrix = new Matrix4() // 用来变换法向量的矩阵
 
-      // modelMatrix.setTranslate(0, 0.9, 0) // 沿Y轴平移
-      modelMatrix.setRotate(90, 0, 1, 0) // 绕Y轴旋转
-      gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements)
+      let currentAngle = 0.0
 
-      mvpMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100)
-      // mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0)
-      mvpMatrix.lookAt(6, 6, 14, 0, 0, 0, 0, 1, 0)
+      const tick = () => {
+        currentAngle = this.animate(currentAngle)
+        // modelMatrix.setTranslate(0, 0.9, 0) // 沿Y轴平移
+        // modelMatrix.setRotate(90, 0, 1, 0) // 绕Y轴旋转
+        modelMatrix.setRotate(currentAngle, 0, 1, 0) // 绕Y轴旋转
+        gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements)
 
-      mvpMatrix.multiply(modelMatrix)
-      // 将模型视图投影矩阵传给uMvpMatrix变量
-      gl.uniformMatrix4fv(uMvpMatrix, false, mvpMatrix.elements)
+        mvpMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100)
+        // mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0)
+        mvpMatrix.lookAt(6, 6, 14, 0, 0, 0, 0, 1, 0)
 
-      // 根据模型矩阵计算用来变换法向量的矩阵
-      normalMatrix.setInverseOf(modelMatrix)
-      normalMatrix.transpose()
-      gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements)
+        mvpMatrix.multiply(modelMatrix)
+        // 将模型视图投影矩阵传给uMvpMatrix变量
+        gl.uniformMatrix4fv(uMvpMatrix, false, mvpMatrix.elements)
 
-      // Clear <canvas>
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-      gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0) // 绘制立方体
+        // 根据模型矩阵计算用来变换法向量的矩阵
+        normalMatrix.setInverseOf(modelMatrix)
+        normalMatrix.transpose()
+        gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements)
+
+        // Clear <canvas>
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+        gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0) // 绘制立方体
+        requestAnimationFrame(tick, canvas)
+      }
+      tick()
 
       // 画一条线
       // gl.drawArrays(gl.LINES, 0, 2)
@@ -120,6 +131,14 @@ export default {
       // 一系列三角形组成类似扇形的图形
       // gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
       // gl.drawArrays(gl.POINTS, 0, 3)
+    },
+    animate (angle) {
+      let now = Date.now()
+      let elapsed = now - gLast
+      gLast = now
+      let newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0
+      newAngle %= 360
+      return newAngle
     },
     initVertexBuffers () {
       const gl = this.gl
