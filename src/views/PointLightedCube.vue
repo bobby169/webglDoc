@@ -1,7 +1,7 @@
 <script>
 import Base from '../components/Base'
 import { initShaders } from '../js/utils'
-import Vector3 from '../js/Vector3'
+// import Vector3 from '../js/Vector3'
 import Matrix4 from '../js/Matrix4'
 // 直接用GLSL着色器语言进行修改
 // Vertex shader program
@@ -10,19 +10,23 @@ const VSHADER_SOURCE =
      attribute vec4 aColor; // 基底色
      attribute vec4 aNormal; // 法向量方向
      uniform mat4 uMvpMatrix;
+     uniform mat4 uModelMatrix;
      uniform mat4 uNormalMatrix; // 用来变换法向量的矩阵
-     uniform vec3 uLightColor; // 入射光线颜色
-     uniform vec3 uLightDirection; // 入射光方向，归一化的世界坐标下
+     uniform vec3 uLightColor; // 入射光线颜色（点光源）
+     uniform vec3 uLightPosition; // 点光源位置（世界坐标系）
+     // uniform vec3 uLightDirection; // 入射光方向，归一化的世界坐标下
      uniform vec3 uAmbientLight; // 环境光颜色
      varying vec4 vColor; // varying(可变的) variable
      void main() {
        gl_Position = uMvpMatrix * aPosition;
        // vec3 normal = normalize(aNormal.xyz); // 对法向量归一化处理
        vec3 normal = normalize(vec3(uNormalMatrix * aNormal));
-       float nDotL = max(dot(uLightDirection, normal), 0.0); // 计算光线方向和法向量的点积
+       vec4 vertexPosition = uModelMatrix * aPosition; // 计算顶点的世界坐标
+       vec3 lightDirection = normalize(uLightPosition - vec3(vertexPosition)); // 计算光线方向并归一化
+       float nDotL = max(dot(lightDirection, normal), 0.0); // 计算光线方向和法向量的点积
        vec3 diffuse = uLightColor * aColor.rgb * nDotL; // 计算漫反射光颜色
        vec3 ambient = uAmbientLight * aColor.rgb;
-       vColor = vec4(diffuse + ambient, aColor.a); // 补上第4个分量aColor.a = 1，两者相加作为最终的颜色
+       vColor = vec4(diffuse + ambient, aColor.a); // 补上第4个分量aColor.a = 1 ，两者相加作为最终的颜色
      }`
 
 // Fragment shader program
@@ -52,20 +56,23 @@ export default {
       gl.clearColor(0.0, 0.0, 0.0, 1.0)
       gl.enable(gl.DEPTH_TEST)
 
+      const uModelMatrix = gl.getUniformLocation(gl.program, 'uModelMatrix')
       const uMvpMatrix = gl.getUniformLocation(gl.program, 'uMvpMatrix')
       const uNormalMatrix = gl.getUniformLocation(gl.program, 'uNormalMatrix')
       const uLightColor = gl.getUniformLocation(gl.program, 'uLightColor')
-      const uLightDirection = gl.getUniformLocation(gl.program, 'uLightDirection')
+      const uLightPosition = gl.getUniformLocation(gl.program, 'uLightPosition')
+      // const uLightDirection = gl.getUniformLocation(gl.program, 'uLightDirection')
       const uAmbientLight = gl.getUniformLocation(gl.program, 'uAmbientLight')
-      if (!uMvpMatrix || !uNormalMatrix || !uLightColor || !uLightDirection || !uAmbientLight) {
+      if (!uMvpMatrix || !uNormalMatrix || !uLightColor || !uLightPosition || !uAmbientLight) {
         console.log('Failed to get the storage location')
         return
       }
       // 设置光线颜色（白色）
       gl.uniform3f(uLightColor, 1.0, 1.0, 1.0)
-      const lightDirection = new Vector3([0.5, 3.0, 4.0])
-      lightDirection.normalize() // 归一化
-      gl.uniform3fv(uLightDirection, lightDirection.elements)
+      gl.uniform3f(uLightPosition, 2.3, 4.0, 3.5)
+      // const lightDirection = new Vector3([0.5, 3.0, 4.0])
+      // lightDirection.normalize() // 归一化
+      // gl.uniform3fv(uLightDirection, lightDirection.elements)
 
       // 环境光颜色
       gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2)
@@ -74,11 +81,14 @@ export default {
       const mvpMatrix = new Matrix4() // 模型视图投影矩阵
       const normalMatrix = new Matrix4() // 用来变换法向量的矩阵
 
-      modelMatrix.setTranslate(0, 0.9, 0) // 沿Y轴平移
-      modelMatrix.rotate(90, 0, 0, 1) // 沿Z轴旋转
+      // modelMatrix.setTranslate(0, 0.9, 0) // 沿Y轴平移
+      modelMatrix.setRotate(90, 0, 1, 0) // 绕Y轴旋转
+      gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements)
 
       mvpMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100)
-      mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0)
+      // mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0)
+      mvpMatrix.lookAt(6, 6, 14, 0, 0, 0, 0, 1, 0)
+
       mvpMatrix.multiply(modelMatrix)
       // 将模型视图投影矩阵传给uMvpMatrix变量
       gl.uniformMatrix4fv(uMvpMatrix, false, mvpMatrix.elements)
@@ -139,13 +149,22 @@ export default {
       //  | |v7---|-|v4
       //  |/      |/
       //  v2------v3
-      const vertices = new Float32Array([ // Coordinates
-        1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, // v0-v1-v2-v3 front
-        1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, // v0-v3-v4-v5 right
-        1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, // v0-v5-v6-v1 up
-        -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, // v1-v6-v7-v2 left
-        -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0, // v7-v4-v3-v2 down
-        1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0 // v4-v7-v6-v5 back
+      // const vertices = new Float32Array([ // Coordinates
+      //   1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, // v0-v1-v2-v3 front
+      //   1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, // v0-v3-v4-v5 right
+      //   1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, // v0-v5-v6-v1 up
+      //   -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, // v1-v6-v7-v2 left
+      //   -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0, // v7-v4-v3-v2 down
+      //   1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0 // v4-v7-v6-v5 back
+      // ])
+
+      const vertices = new Float32Array([
+        2.0, 2.0, 2.0, -2.0, 2.0, 2.0, -2.0, -2.0, 2.0, 2.0, -2.0, 2.0, // v0-v1-v2-v3 front
+        2.0, 2.0, 2.0, 2.0, -2.0, 2.0, 2.0, -2.0, -2.0, 2.0, 2.0, -2.0, // v0-v3-v4-v5 right
+        2.0, 2.0, 2.0, 2.0, 2.0, -2.0, -2.0, 2.0, -2.0, -2.0, 2.0, 2.0, // v0-v5-v6-v1 up
+        -2.0, 2.0, 2.0, -2.0, 2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, 2.0, // v1-v6-v7-v2 left
+        -2.0, -2.0, -2.0, 2.0, -2.0, -2.0, 2.0, -2.0, 2.0, -2.0, -2.0, 2.0, // v7-v4-v3-v2 down
+        2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, 2.0, -2.0, 2.0, 2.0, -2.0 // v4-v7-v6-v5 back
       ])
 
       const colors = new Float32Array([ // Colors

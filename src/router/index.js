@@ -54,6 +54,11 @@ const routes = [
     path: '/lightedCube',
     name: 'LightedCube',
     component: () => import(/* webpackChunkName: "lightedCube" */ '../views/LightedCube.vue')
+  },
+  {
+    path: '/pointLightedCube',
+    name: 'PointLightedCube',
+    component: () => import(/* webpackChunkName: "pointLightedCube" */ '../views/PointLightedCube.vue')
   }
 ]
 
