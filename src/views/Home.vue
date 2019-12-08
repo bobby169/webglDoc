@@ -10,6 +10,7 @@
     <router-link to="/multiTexture" class="link"><cell title="MultiTexture" is-link></cell></router-link>
     <router-link to="/lightedCube" class="link"><cell title="LightedCube" is-link></cell></router-link>
     <router-link to="/pointLightedCube" class="link"><cell title="PointLightedCube" is-link></cell></router-link>
+    <router-link to="/pointLightedCubePerFragment" class="link"><cell title="PointLightedCubePerFragment" is-link></cell></router-link>
   </div>
 </template>
 
