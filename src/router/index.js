@@ -64,6 +64,11 @@ const routes = [
     path: '/pointLightedCubePerFragment',
     name: 'PointLightedCubePerFragment',
     component: () => import(/* webpackChunkName: "pointLightedCubePerFragment" */ '../views/PointLightedCubePerFragment.vue')
+  },
+  {
+    path: '/pointLightedSphere',
+    name: 'PointLightedSphere',
+    component: () => import(/* webpackChunkName: "pointLightedSphere" */ '../views/PointLightedSphere.vue')
   }
 ]
 
