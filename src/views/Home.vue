@@ -12,6 +12,7 @@
     <router-link to="/pointLightedCube" class="link"><cell title="PointLightedCube" is-link></cell></router-link>
     <router-link to="/pointLightedCubePerFragment" class="link"><cell title="PointLightedCubePerFragment" is-link></cell></router-link>
     <router-link to="/pointLightedSphere" class="link"><cell title="PointLightedSphere" is-link></cell></router-link>
+    <router-link to="/pointLightedSpherePerFragment" class="link"><cell title="PointLightedSpherePerFragment" is-link></cell></router-link>
   </div>
 </template>
 
