@@ -74,6 +74,11 @@ const routes = [
     path: '/pointLightedSpherePerFragment',
     name: 'PointLightedSpherePerFragment',
     component: () => import(/* webpackChunkName: "pointLightedSpherePerFragment" */ '../views/PointLightedSpherePerFragment.vue')
+  },
+  {
+    path: '/jointModel',
+    name: 'JointModel',
+    component: () => import(/* webpackChunkName: "jointModel" */ '../views/JointModel.vue')
   }
 ]
 
