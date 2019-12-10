@@ -25,11 +25,17 @@ const FSHADER_SOURCE = `
     }
 `
 const ANGLE_STEP = 3.0
-const gModelMatrix = new Matrix4() // 坐标变换矩阵
-const gMvpMatrix = new Matrix4()
-const gNormalMatrix = new Matrix4()
+let gModelMatrix = new Matrix4() // 坐标变换矩阵
+let gMvpMatrix = new Matrix4()
+let gNormalMatrix = new Matrix4()
+let gMatrixStack = []
 let gArm1Angle = -90.0
 let gJoint1Angle = 0.0
+let gJoint2Angle = 0.0
+let gJoint3Angle = 0.0
+
+// <p>&larr;&rarr;: arm1 rotation,&uarr;&darr;: joint1 rotation, xz: joint2(wrist) rotation, cv: finger rotation</p>
+
 export default {
   name: 'JointModel',
   mixins: [Base],
@@ -64,10 +70,10 @@ export default {
     },
     keydown (ev, n, viewProjMatrix, uMvpMatrix, uNormalMatrix) {
       switch (ev.keyCode) {
-        case 38: // Up arrow key -> the positive rotation of joint1 around the z-axis
+        case 40: // Up arrow key -> the positive rotation of joint1 around the z-axis
           if (gJoint1Angle < 135.0) gJoint1Angle += ANGLE_STEP
           break
-        case 40: // Down arrow key -> the negative rotation of joint1 around the z-axis
+        case 38: // Down arrow key -> the negative rotation of joint1 around the z-axis
           if (gJoint1Angle > -135.0) gJoint1Angle -= ANGLE_STEP
           break
         case 39: // Right arrow key -> the positive rotation of arm1 around the y-axis
@@ -76,22 +82,33 @@ export default {
         case 37: // Left arrow key -> the negative rotation of arm1 around the y-axis
           gArm1Angle = (gArm1Angle - ANGLE_STEP) % 360
           break
-        default:
-                 // Skip drawing at no effective action
+        case 90: // 'ｚ'key -> the positive rotation of joint2
+          gJoint2Angle = (gJoint2Angle + ANGLE_STEP) % 360
+          break
+        case 88: // 'x'key -> the negative rotation of joint2
+          gJoint2Angle = (gJoint2Angle - ANGLE_STEP) % 360
+          break
+        case 86: // 'v'key -> the positive rotation of joint3
+          if (gJoint3Angle < 60.0) gJoint3Angle = (gJoint3Angle + ANGLE_STEP) % 360
+          break
+        case 67: // 'c'key -> the nagative rotation of joint3
+          if (gJoint3Angle > -60.0) gJoint3Angle = (gJoint3Angle - ANGLE_STEP) % 360
+          break
+        default: return // Skip drawing at no effective action
       }
       this.draw(n, viewProjMatrix, uMvpMatrix, uNormalMatrix)
     },
     initVertexBuffers () {
       const gl = this.gl
 
-      // Vertex coordinates（a cuboid 3.0 in width, 10.0 in height, and 3.0 in length with its origin at the center of its bottom)
+      // Coordinates（Cube which length of one side is 1 with the origin on the center of the bottom)
       const vertices = new Float32Array([
-        1.5, 10.0, 1.5, -1.5, 10.0, 1.5, -1.5, 0.0, 1.5, 1.5, 0.0, 1.5, // v0-v1-v2-v3 front
-        1.5, 10.0, 1.5, 1.5, 0.0, 1.5, 1.5, 0.0, -1.5, 1.5, 10.0, -1.5, // v0-v3-v4-v5 right
-        1.5, 10.0, 1.5, 1.5, 10.0, -1.5, -1.5, 10.0, -1.5, -1.5, 10.0, 1.5, // v0-v5-v6-v1 up
-        -1.5, 10.0, 1.5, -1.5, 10.0, -1.5, -1.5, 0.0, -1.5, -1.5, 0.0, 1.5, // v1-v6-v7-v2 left
-        -1.5, 0.0, -1.5, 1.5, 0.0, -1.5, 1.5, 0.0, 1.5, -1.5, 0.0, 1.5, // v7-v4-v3-v2 down
-        1.5, 0.0, -1.5, -1.5, 0.0, -1.5, -1.5, 10.0, -1.5, 1.5, 10.0, -1.5 // v4-v7-v6-v5 back
+        0.5, 1.0, 0.5, -0.5, 1.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0, 0.5, // v0-v1-v2-v3 front
+        0.5, 1.0, 0.5, 0.5, 0.0, 0.5, 0.5, 0.0, -0.5, 0.5, 1.0, -0.5, // v0-v3-v4-v5 right
+        0.5, 1.0, 0.5, 0.5, 1.0, -0.5, -0.5, 1.0, -0.5, -0.5, 1.0, 0.5, // v0-v5-v6-v1 up
+        -0.5, 1.0, 0.5, -0.5, 1.0, -0.5, -0.5, 0.0, -0.5, -0.5, 0.0, 0.5, // v1-v6-v7-v2 left
+        -0.5, 0.0, -0.5, 0.5, 0.0, -0.5, 0.5, 0.0, 0.5, -0.5, 0.0, 0.5, // v7-v4-v3-v2 down
+        0.5, 0.0, -0.5, -0.5, 0.0, -0.5, -0.5, 1.0, -0.5, 0.5, 1.0, -0.5 // v4-v7-v6-v5 back
       ])
 
       // Normal
@@ -162,21 +179,50 @@ export default {
       // Clear color and depth buffer
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-      // Arm1
-      const arm1Length = 10.0 // Length of arm1
+      // Draw a base
+      const baseHeight = 2.0
       gModelMatrix.setTranslate(0.0, -12.0, 0.0)
+      this.drawBox(n, 10.0, baseHeight, 10.0, viewProjMatrix, uMvpMatrix, uNormalMatrix)
+
+      // Arm1
+      const arm1Length = 10.0
+      gModelMatrix.translate(0.0, baseHeight, 0.0) // Move onto the base
       gModelMatrix.rotate(gArm1Angle, 0.0, 1.0, 0.0) // Rotate around the y-axis
-      this.drawBox(n, viewProjMatrix, uMvpMatrix, uNormalMatrix) // Draw
+      this.drawBox(n, 3.0, arm1Length, 3.0, viewProjMatrix, uMvpMatrix, uNormalMatrix) // Draw
 
       // Arm2
+      const arm2Length = 10.0
       gModelMatrix.translate(0.0, arm1Length, 0.0) // Move to joint1
       gModelMatrix.rotate(gJoint1Angle, 0.0, 0.0, 1.0) // Rotate around the z-axis
-      gModelMatrix.scale(1.3, 1.0, 1.3) // Make it a little thicker
-      this.drawBox(n, viewProjMatrix, uMvpMatrix, uNormalMatrix) // Draw
+      this.drawBox(n, 4.0, arm2Length, 4.0, viewProjMatrix, uMvpMatrix, uNormalMatrix) // Draw
+
+      // A palm
+      const palmLength = 2.0
+      gModelMatrix.translate(0.0, arm2Length, 0.0) // Move to palm
+      gModelMatrix.rotate(gJoint2Angle, 0.0, 1.0, 0.0) // Rotate around the y-axis
+      this.drawBox(n, 2.0, palmLength, 6.0, viewProjMatrix, uMvpMatrix, uNormalMatrix) // Draw
+
+      // Move to the center of the tip of the palm
+      gModelMatrix.translate(0.0, palmLength, 0.0)
+
+      // Draw finger1
+      this.pushMatrix(gModelMatrix)
+      gModelMatrix.translate(0.0, 0.0, 2.0)
+      gModelMatrix.rotate(gJoint3Angle, 1.0, 0.0, 0.0) // Rotate around the x-axis
+      this.drawBox(n, 1.0, 2.0, 1.0, viewProjMatrix, uMvpMatrix, uNormalMatrix)
+      gModelMatrix = this.popMatrix()
+
+      // Draw finger2
+      gModelMatrix.translate(0.0, 0.0, -2.0)
+      gModelMatrix.rotate(-gJoint3Angle, 1.0, 0.0, 0.0) // Rotate around the x-axis
+      this.drawBox(n, 1.0, 2.0, 1.0, viewProjMatrix, uMvpMatrix, uNormalMatrix)
     },
-    drawBox (n, viewProjMatrix, uMvpMatrix, uNormalMatrix) {
+    drawBox (n, width, height, depth, viewProjMatrix, uMvpMatrix, uNormalMatrix) {
       const gl = this.gl
 
+      this.pushMatrix(gModelMatrix) // Save the model matrix
+      // Scale a cube and draw
+      gModelMatrix.scale(width, height, depth)
       // Calculate the model view project matrix and pass it to u_MvpMatrix
       gMvpMatrix.set(viewProjMatrix)
       gMvpMatrix.multiply(gModelMatrix)
@@ -187,6 +233,14 @@ export default {
       gl.uniformMatrix4fv(uNormalMatrix, false, gNormalMatrix.elements)
       // Draw
       gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
+      gModelMatrix = this.popMatrix() // Retrieve the model matrix
+    },
+    pushMatrix (m) {
+      const m2 = new Matrix4(m)
+      gMatrixStack.push(m2)
+    },
+    popMatrix () {
+      return gMatrixStack.pop()
     }
   },
   mounted () {
