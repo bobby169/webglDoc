@@ -84,6 +84,11 @@ const routes = [
     path: '/multiJointModel',
     name: 'MultiJointModel',
     component: () => import(/* webpackChunkName: "multiJointModel" */ '../views/MultiJointModel.vue')
+  },
+  {
+    path: '/multiJointModelSegment',
+    name: 'MultiJointModelSegment',
+    component: () => import(/* webpackChunkName: "multiJointModelSegment" */ '../views/MultiJointModelSegment.vue')
   }
 ]
 

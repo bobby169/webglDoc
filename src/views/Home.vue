@@ -15,6 +15,7 @@
     <router-link to="/pointLightedSpherePerFragment" class="link"><cell title="PointLightedSpherePerFragment" is-link></cell></router-link>
     <router-link to="/jointModel" class="link"><cell title="JointModel" is-link></cell></router-link>
     <router-link to="/multiJointModel" class="link"><cell title="MultiJointModel" is-link></cell></router-link>
+    <router-link to="/multiJointModelSegment" class="link"><cell title="MultiJointModelSegment" is-link></cell></router-link>
   </div>
 </template>
 
