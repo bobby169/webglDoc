@@ -28,7 +28,7 @@ const ANGLE_STEP = 3.0
 let gModelMatrix = new Matrix4() // 坐标变换矩阵
 let gMvpMatrix = new Matrix4()
 let gNormalMatrix = new Matrix4()
-let gMatrixStack = []
+// let gMatrixStack = []
 let gArm1Angle = -90.0
 let gJoint1Angle = 45.0
 let gJoint2Angle = 0.0
@@ -310,32 +310,32 @@ export default {
       gl.uniformMatrix4fv(uNormalMatrix, false, gNormalMatrix.elements)
       // Draw
       gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
-    },
-    drawBox (n, width, height, depth, viewProjMatrix, uMvpMatrix, uNormalMatrix) {
-      const gl = this.gl
-
-      this.pushMatrix(gModelMatrix) // Save the model matrix
-      // Scale a cube and draw
-      gModelMatrix.scale(width, height, depth)
-      // Calculate the model view project matrix and pass it to u_MvpMatrix
-      gMvpMatrix.set(viewProjMatrix)
-      gMvpMatrix.multiply(gModelMatrix)
-      gl.uniformMatrix4fv(uMvpMatrix, false, gMvpMatrix.elements)
-      // Calculate the normal transformation matrix and pass it to u_NormalMatrix
-      gNormalMatrix.setInverseOf(gModelMatrix)
-      gNormalMatrix.transpose()
-      gl.uniformMatrix4fv(uNormalMatrix, false, gNormalMatrix.elements)
-      // Draw
-      gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
-      gModelMatrix = this.popMatrix() // Retrieve the model matrix
-    },
-    pushMatrix (m) {
-      const m2 = new Matrix4(m)
-      gMatrixStack.push(m2)
-    },
-    popMatrix () {
-      return gMatrixStack.pop()
     }
+    // drawBox (n, width, height, depth, viewProjMatrix, uMvpMatrix, uNormalMatrix) {
+    //   const gl = this.gl
+    //
+    //   this.pushMatrix(gModelMatrix) // Save the model matrix
+    //   // Scale a cube and draw
+    //   gModelMatrix.scale(width, height, depth)
+    //   // Calculate the model view project matrix and pass it to u_MvpMatrix
+    //   gMvpMatrix.set(viewProjMatrix)
+    //   gMvpMatrix.multiply(gModelMatrix)
+    //   gl.uniformMatrix4fv(uMvpMatrix, false, gMvpMatrix.elements)
+    //   // Calculate the normal transformation matrix and pass it to u_NormalMatrix
+    //   gNormalMatrix.setInverseOf(gModelMatrix)
+    //   gNormalMatrix.transpose()
+    //   gl.uniformMatrix4fv(uNormalMatrix, false, gNormalMatrix.elements)
+    //   // Draw
+    //   gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
+    //   gModelMatrix = this.popMatrix() // Retrieve the model matrix
+    // },
+    // pushMatrix (m) {
+    //   const m2 = new Matrix4(m)
+    //   gMatrixStack.push(m2)
+    // },
+    // popMatrix () {
+    //   return gMatrixStack.pop()
+    // }
   },
   mounted () {
     this.init()
