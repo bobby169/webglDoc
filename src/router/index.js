@@ -104,6 +104,11 @@ const routes = [
     path: '/mouseRotateObject',
     name: 'MouseRotateObject',
     component: () => import(/* webpackChunkName: "mouseRotateObject" */ '../views/advance/MouseRotateObject.vue')
+  },
+  {
+    path: '/fog',
+    name: 'Fog',
+    component: () => import(/* webpackChunkName: "fog" */ '../views/advance/Fog.vue')
   }
 ]
 
