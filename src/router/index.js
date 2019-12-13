@@ -99,6 +99,11 @@ const routes = [
     path: '/pickFace',
     name: 'PickFace',
     component: () => import(/* webpackChunkName: "pickFace" */ '../views/advance/PickFace.vue')
+  },
+  {
+    path: '/mouseRotateObject',
+    name: 'MouseRotateObject',
+    component: () => import(/* webpackChunkName: "mouseRotateObject" */ '../views/advance/MouseRotateObject.vue')
   }
 ]
 

@@ -18,6 +18,7 @@
     <router-link to="/multiJointModelSegment" class="link"><cell title="MultiJointModelSegment" is-link></cell></router-link>
     <router-link to="/pickObject" class="link"><cell title="PickObject" is-link></cell></router-link>
     <router-link to="/pickFace" class="link"><cell title="PickFace" is-link></cell></router-link>
+    <router-link to="/mouseRotateObject" class="link"><cell title="MouseRotateObject" is-link></cell></router-link>
   </div>
 </template>
 

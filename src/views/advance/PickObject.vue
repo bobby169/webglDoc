@@ -33,7 +33,7 @@ let gMvpMatrix = new Matrix4() // Model view projection matrix
 let last = Date.now()
 
 export default {
-  name: 'Picking',
+  name: 'PickFace',
   mixins: [Base],
   methods: {
     init () {
