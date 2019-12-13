@@ -96,9 +96,9 @@ const routes = [
     component: () => import(/* webpackChunkName: "pickObject" */ '../views/advance/PickObject.vue')
   },
   {
-    path: '/picking',
-    name: 'Picking',
-    component: () => import(/* webpackChunkName: "picking" */ '../views/advance/Picking.vue')
+    path: '/pickFace',
+    name: 'PickFace',
+    component: () => import(/* webpackChunkName: "pickFace" */ '../views/advance/PickFace.vue')
   }
 ]
 

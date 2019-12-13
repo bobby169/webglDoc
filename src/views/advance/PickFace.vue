@@ -7,15 +7,15 @@ import Matrix4 from '../../js/Matrix4'
 const VSHADER_SOURCE = `
    attribute vec4 aPosition;
    attribute vec4 aColor;
-   attribute float aFace;   // Surface number (Cannot use int for attribute variable)
+   attribute float aFace;   // 表面编号（不可使用int类型）
    uniform mat4 uMvpMatrix;
-   uniform int uPickedFace; // Surface number of selected face
+   uniform int uPickedFace; // 被选中表面的编号
    varying vec4 vColor;
    void main() {
      gl_Position = uMvpMatrix * aPosition;
-     int face = int(aFace); // Convert to int
+     int face = int(aFace); // 转为int类型
      vec3 color = (face == uPickedFace) ? vec3(1.0) : aColor.rgb;
-     if(uPickedFace == 0) { // if 0, set face number to vColor
+     if(uPickedFace == 0) { // if 0, 将表面编号写入alpha分量
        vColor = vec4(color, aFace/255.0);
      } else {
        vColor = vec4(color, aColor.a);
@@ -36,7 +36,7 @@ let gMvpMatrix = new Matrix4() // Model view projection matrix
 let last = Date.now()
 
 export default {
-  name: 'Picking',
+  name: 'PickFace',
   mixins: [Base],
   methods: {
     init () {
@@ -73,7 +73,13 @@ export default {
         let rect = ev.target.getBoundingClientRect()
         if (rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom) {
           // If Clicked position is inside the <canvas>, update the selected surface
-          this.updatePickedFace(n, x - rect.left, rect.bottom - y, uPickedFace, viewProjMatrix, uMvpMatrix)
+          // this.updatePickedFace(n, x - rect.left, rect.bottom - y, uPickedFace, viewProjMatrix, uMvpMatrix)
+
+          const xInCanvas = x - rect.left
+          const yInCanvas = rect.bottom - y
+          const face = this.checkFace(n, xInCanvas, yInCanvas, gCurrentAngle, uPickedFace, viewProjMatrix, uMvpMatrix)
+          gl.uniform1i(uPickedFace, face) // Pass the surface number to u_PickedFace
+          this.draw(n, gCurrentAngle, viewProjMatrix, uMvpMatrix)
         }
       }
 
@@ -151,6 +157,16 @@ export default {
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
 
       return indices.length
+    },
+    checkFace (n, x, y, currentAngle, uPickedFace, viewProjMatrix, uMvpMatrix) {
+      const gl = this.gl
+      const pixels = new Uint8Array(4) // Array for storing the pixel value
+      gl.uniform1i(uPickedFace, 0) // Draw by writing surface number into alpha value
+      this.draw(n, currentAngle, viewProjMatrix, uMvpMatrix)
+      // Read the pixel value of the clicked position. pixels[3] is the surface number
+      gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+
+      return pixels[3]
     },
     updatePickedFace (n, x, y, uPickedFace, viewProjMatrix, uMvpMatrix) {
       const gl = this.gl
