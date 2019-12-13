@@ -1,5 +1,11 @@
+<template>
+  <div>
+    <canvas ref="canvas" width="400" height="400"></canvas>
+    <p>&larr;&rarr;: arm1 rotation,&uarr;&darr;: joint1 rotation, xz: joint2(wrist) rotation, cv: finger rotation</p>
+  </div>
+</template>
+
 <script>
-import Base from '../components/Base'
 import { initShaders } from '../js/utils'
 import Matrix4 from '../js/Matrix4'
 const VSHADER_SOURCE =
@@ -38,7 +44,6 @@ let gJoint3Angle = 0.0
 
 export default {
   name: 'JointModel',
-  mixins: [Base],
   methods: {
     init () {
       const gl = this.gl
@@ -244,6 +249,7 @@ export default {
     }
   },
   mounted () {
+    this.gl = this.$refs.canvas.getContext('webgl')
     this.init()
   }
 }

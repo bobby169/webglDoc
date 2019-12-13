@@ -1,5 +1,11 @@
+<template>
+  <div>
+    <canvas ref="canvas" width="400" height="400"></canvas>
+    <p>&larr;&rarr;: arm1 rotation,&uarr;&darr;: joint1 rotation, xz: joint2(wrist) rotation, cv: finger rotation</p>
+  </div>
+</template>
+
 <script>
-import Base from '../components/Base'
 import { initShaders } from '../js/utils'
 import Matrix4 from '../js/Matrix4'
 const VSHADER_SOURCE =
@@ -28,8 +34,8 @@ const ANGLE_STEP = 3.0
 let gModelMatrix = new Matrix4() // 坐标变换矩阵
 let gMvpMatrix = new Matrix4()
 let gNormalMatrix = new Matrix4()
-// let gMatrixStack = []
-let gArm1Angle = -90.0
+let gMatrixStack = []
+let gArm1Angle = 90.0
 let gJoint1Angle = 45.0
 let gJoint2Angle = 0.0
 let gJoint3Angle = 0.0
@@ -40,11 +46,8 @@ let gArm2Buffer = null
 let gPalmBuffer = null
 let gFingerBuffer = null
 
-// <p>&larr;&rarr;: arm1 rotation,&uarr;&darr;: joint1 rotation, xz: joint2(wrist) rotation, cv: finger rotation</p>
-
 export default {
   name: 'JointModel',
-  mixins: [Base],
   methods: {
     init () {
       const gl = this.gl
@@ -310,7 +313,7 @@ export default {
       gl.uniformMatrix4fv(uNormalMatrix, false, gNormalMatrix.elements)
       // Draw
       gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
-    }
+    },
     // drawBox (n, width, height, depth, viewProjMatrix, uMvpMatrix, uNormalMatrix) {
     //   const gl = this.gl
     //
@@ -329,15 +332,16 @@ export default {
     //   gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0)
     //   gModelMatrix = this.popMatrix() // Retrieve the model matrix
     // },
-    // pushMatrix (m) {
-    //   const m2 = new Matrix4(m)
-    //   gMatrixStack.push(m2)
-    // },
-    // popMatrix () {
-    //   return gMatrixStack.pop()
-    // }
+    pushMatrix (m) {
+      const m2 = new Matrix4(m)
+      gMatrixStack.push(m2)
+    },
+    popMatrix () {
+      return gMatrixStack.pop()
+    }
   },
   mounted () {
+    this.gl = this.$refs.canvas.getContext('webgl')
     this.init()
   }
 }
