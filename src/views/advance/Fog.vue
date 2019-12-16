@@ -15,14 +15,15 @@ const VSHADER_SOURCE = `
    attribute vec4 aPosition;
    attribute vec4 aColor;
    uniform mat4 uMvpMatrix;
-   uniform mat4 uModelMatrix;
-   uniform vec4 uEye;
+   // uniform mat4 uModelMatrix;
+   // uniform vec4 uEye;
    varying vec4 vColor;
    varying float vDist;
    void main() {
      gl_Position = uMvpMatrix * aPosition;
      vColor = aColor;
-     vDist = distance(uModelMatrix * aPosition, uEye);
+     // vDist = distance(uModelMatrix * aPosition, uEye);
+     vDist = gl_Position.w; // 使用视图坐标系的负Z值
    }`
 
 // Fragment shader program
@@ -34,10 +35,12 @@ const FSHADER_SOURCE = `
    varying float vDist;
    void main() {
      // 雾化因子 = （终点 - 当前点与视点间的距离） / (终点 - 起点)
-     float fogFactor = clamp((uFogDist.y - vDist) / (uFogDist.y - uFogDist.x), 0.0, 1.0);
+     // float fogFactor = clamp((uFogDist.y - vDist) / (uFogDist.y - uFogDist.x), 0.0, 1.0);
+     float fogFactor = (uFogDist.y - vDist) / (uFogDist.y - uFogDist.x);
      // 片元颜色 = 物体表面颜色 * 雾化因子 + 雾的颜色 * (1 - 雾化因子)
      // Stronger fog as it gets further: u_FogColor * (1 - fogFactor) + v_Color * fogFactor
-     vec3 color = mix(uFogColor, vec3(vColor), fogFactor); // mix: x * (1-z) + y*z
+     // vec3 color = mix(uFogColor, vec3(vColor), fogFactor); // mix: x * (1-z) + y*z
+     vec3 color = mix(uFogColor, vec3(vColor), clamp(fogFactor, 0.0, 1.0));
      gl_FragColor = vec4(color, vColor.a);
    }`
 
@@ -64,11 +67,11 @@ export default {
 
       // Get the storage locations of uniform variables
       const uMvpMatrix = gl.getUniformLocation(gl.program, 'uMvpMatrix')
-      const uModelMatrix = gl.getUniformLocation(gl.program, 'uModelMatrix')
-      const uEye = gl.getUniformLocation(gl.program, 'uEye')
+      // const uModelMatrix = gl.getUniformLocation(gl.program, 'uModelMatrix')
+      // const uEye = gl.getUniformLocation(gl.program, 'uEye')
       const uFogColor = gl.getUniformLocation(gl.program, 'uFogColor')
       const uFogDist = gl.getUniformLocation(gl.program, 'uFogDist')
-      if (!uMvpMatrix || !uModelMatrix || !uEye || !uFogColor || !uFogDist) {
+      if (!uMvpMatrix || !uFogColor || !uFogDist) {
         console.log('Failed to get the storage location')
         return
       }
@@ -76,7 +79,7 @@ export default {
       // Pass fog color, distances, and eye point to uniform variable
       gl.uniform3fv(uFogColor, fogColor) // Colors
       gl.uniform2fv(uFogDist, fogDist) // Starting point and end point
-      gl.uniform4fv(uEye, eye) // Eye point
+      // gl.uniform4fv(uEye, eye) // Eye point
 
       // 设置背景色，并开启隐藏面消除功能
       gl.clearColor(fogColor[0], fogColor[1], fogColor[2], 1.0) // Color of Fog
@@ -85,7 +88,7 @@ export default {
       // Pass the model matrix to u_ModelMatrix
       const modelMatrix = new Matrix4()
       modelMatrix.setScale(10, 10, 10)
-      gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements)
+      // gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements)
 
       // Pass the model view projection matrix to u_MvpMatrix
       const mvpMatrix = new Matrix4()
