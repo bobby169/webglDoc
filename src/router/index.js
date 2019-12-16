@@ -114,6 +114,11 @@ const routes = [
     path: '/roundedPoints',
     name: 'RoundedPoints',
     component: () => import(/* webpackChunkName: "roundedPoints" */ '../views/advance/RoundedPoints.vue')
+  },
+  {
+    path: '/blendedTriangles',
+    name: 'BlendedTriangles',
+    component: () => import(/* webpackChunkName: "blendedTriangles" */ '../views/advance/BlendedTriangles.vue')
   }
 ]
 
