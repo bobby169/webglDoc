@@ -20,6 +20,7 @@
     <router-link to="/pickFace" class="link"><cell title="PickFace" is-link></cell></router-link>
     <router-link to="/mouseRotateObject" class="link"><cell title="MouseRotateObject" is-link></cell></router-link>
     <router-link to="/fog" class="link"><cell title="Fog" is-link></cell></router-link>
+    <router-link to="/roundedPoints" class="link"><cell title="RoundedPoints" is-link></cell></router-link>
   </div>
 </template>
 

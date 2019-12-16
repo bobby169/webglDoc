@@ -109,6 +109,11 @@ const routes = [
     path: '/fog',
     name: 'Fog',
     component: () => import(/* webpackChunkName: "fog" */ '../views/advance/Fog.vue')
+  },
+  {
+    path: '/roundedPoints',
+    name: 'RoundedPoints',
+    component: () => import(/* webpackChunkName: "roundedPoints" */ '../views/advance/RoundedPoints.vue')
   }
 ]
 
