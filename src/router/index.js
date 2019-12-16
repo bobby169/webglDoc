@@ -119,6 +119,11 @@ const routes = [
     path: '/blendedTriangles',
     name: 'BlendedTriangles',
     component: () => import(/* webpackChunkName: "blendedTriangles" */ '../views/advance/BlendedTriangles.vue')
+  },
+  {
+    path: '/frameBufferObject',
+    name: 'FrameBufferObject',
+    component: () => import(/* webpackChunkName: "frameBufferObject" */ '../views/advance/FrameBufferObject.vue')
   }
 ]
 

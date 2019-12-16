@@ -22,6 +22,7 @@
     <router-link to="/fog" class="link"><cell title="Fog" is-link></cell></router-link>
     <router-link to="/roundedPoints" class="link"><cell title="RoundedPoints" is-link></cell></router-link>
     <router-link to="/blendedTriangles" class="link"><cell title="BlendedTriangles" is-link></cell></router-link>
+    <router-link to="/frameBufferObject" class="link"><cell title="FrameBufferObject" is-link></cell></router-link>
   </div>
 </template>
 
