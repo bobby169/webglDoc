@@ -124,6 +124,11 @@ const routes = [
     path: '/frameBufferObject',
     name: 'FrameBufferObject',
     component: () => import(/* webpackChunkName: "frameBufferObject" */ '../views/advance/FrameBufferObject.vue')
+  },
+  {
+    path: '/shadow',
+    name: 'Shadow',
+    component: () => import(/* webpackChunkName: "shadow" */ '../views/advance/Shadow.vue')
   }
 ]
 
