@@ -3,6 +3,7 @@ import Base from '../../components/Base'
 import Matrix4 from '../../js/Matrix4'
 import { createProgram } from '../../js/utils'
 
+// 生成阴影贴图的顶点缓冲区
 const SHADOW_VSHADER_SOURCE = `
   attribute vec4 aPosition;
   uniform mat4 uMvpMatrix;
@@ -10,6 +11,7 @@ const SHADOW_VSHADER_SOURCE = `
     gl_Position = uMvpMatrix * aPosition;
   }
 `
+// 生成阴影贴图的片元缓冲区
 const SHADOW_FSHADER_SOURCE = `
   precision mediump float;
   void main() {
@@ -38,7 +40,7 @@ const FSHADER_SOURCE = `
   void main(){
     vec3 shadowCoord = (vPositionFromLight.xyz / vPositionFromLight.w) / 2.0 + 0.5;
     vec4 rgbaDepth = texture2D(uShadowMap, shadowCoord.xy);
-    float depth = rgbaDepth.r;
+    float depth = rgbaDepth.r; // 从R分量中获取Z值
     float visibility = (shadowCoord.z > depth + 0.005) ? 0.7 : 1.0;
     gl_FragColor = vec4(vColor.rgb * visibility, vColor.a);
   }
@@ -255,7 +257,7 @@ export default {
         console.log('Failed to create the buffer object')
         return null
       }
-      // Write date into the buffer object
+      // Write data into the buffer object
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
 
