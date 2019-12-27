@@ -166,7 +166,7 @@ export default {
         0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0 // v4-v7-v6-v5 back
       ])
 
-      // Indices of the vertices
+      // Indices of the vertices 顶点索引数据定义了组成整个模型的三角形序列
       const indices = new Uint8Array([
         0, 1, 2, 0, 2, 3, // front
         4, 5, 6, 4, 6, 7, // right
